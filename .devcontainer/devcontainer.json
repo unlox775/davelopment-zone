@@ -1,0 +1,40 @@
+{
+  "name": "Multi-Container Elixir Phoenix Dev Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "/bin/bash"
+  },
+  "extensions": [
+    "jakebecker.elixir-ls", // Elixir Language Server
+    "phoenixframework.phoenix" // Phoenix Framework support
+  ],
+  "postCreateCommand": "mix deps.get",
+  "remoteEnv": {
+    "SECRET_KEY_BASE": "${localEnv:SECRET_KEY_BASE}"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "elixir-lsp.elixir-ls"
+      ]
+    }
+  },
+  // "postStartCommand": "service cron start",
+  "portsAttributes": {
+    "4000": {
+      "label": "Phoenix Server"
+    },
+    "5432": {
+      "label": "PostgreSQL Database"
+    },
+    "9092": {
+      "label": "Kafka Broker"
+    }
+  },
+  "shutdownAction": "stopCompose"
+}
