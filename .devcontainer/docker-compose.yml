@@ -1,4 +1,5 @@
 version: "3.8"
+name: davelopment-zone_devcontainer
 services:
   dev:
     build:
@@ -6,10 +7,14 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ..:/workspace:cached
+      # Mount ephemeral vault
+      - ${EPHEMERAL_VAULT:-/no_ephemeral_vault}:/ephemeral_vault:ro
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@db/postgres"
       KAFKA_BROKER_URL: "kafka:9092"
-    command: /bin/sh -c "mix deps.get && mix phx.server"
+      # Pass the ephemeral key as an environment variable
+      EPHEMERAL_RSA_KEY: "${EPHEMERAL_KEY:-no_ephemeral_key}"
+    command: /bin/sh -c "bin/decrypt-ephemeral-secrets.sh && mix deps.get && mix phx.server"
     ports:
       - "4000:4000"
     depends_on:

@@ -1,7 +1,7 @@
 # Use the official Elixir image, which includes both Elixir and Erlang, and supports multi-architecture
 FROM elixir:1.14.2-alpine
 
-# Install additional dependencies (e.g., SOPS, cron)
+# Install additional dependencies
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
     apk update && \
     apk add --no-cache \

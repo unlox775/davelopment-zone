@@ -10,6 +10,10 @@
     "jakebecker.elixir-ls", // Elixir Language Server
     "phoenixframework.phoenix" // Phoenix Framework support
   ],
+  "remoteEnv": {
+    "EPHEMERAL_VAULT": "${localEnv:EPHEMERAL_VAULT}",
+    "EPHEMERAL_KEY": "${localEnv:EPHEMERAL_KEY}"
+  },
   "postCreateCommand": "mix deps.get",
   "remoteEnv": {
     "SECRET_KEY_BASE": "${localEnv:SECRET_KEY_BASE}"
@@ -24,7 +28,6 @@
       ]
     }
   },
-  // "postStartCommand": "service cron start",
   "portsAttributes": {
     "4000": {
       "label": "Phoenix Server"
