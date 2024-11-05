@@ -2,14 +2,16 @@
 FROM elixir:1.14.2-alpine
 
 # Install additional dependencies (e.g., SOPS, cron)
-RUN apk update && \
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk update && \
     apk add --no-cache \
     bash \
     curl \
     git \
     inotify-tools \
     openssl \
-    tzdata
+    tzdata \
+    sops
 
 # Install Phoenix dependencies
 RUN mix local.hex --force && \
