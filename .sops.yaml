@@ -1,5 +1,5 @@
 # .sops.yaml
 creation_rules:
-  - encrypted_regex: '^(smtp_username|smtp_password|password|secret)$'
-    pgp: "0E8F0ABEB86605A5F37E9E7BB7BAC330475E0860"
+  - encrypted_regex: '(smtp_username|smtp_password|password|secret|key)$'
+    pgp: 1D3FB3251AEEF90841E368D3D5C492AF4EE89913
     aws_profile: "sops-encryption-profile" # Optional, if using AWS KMS

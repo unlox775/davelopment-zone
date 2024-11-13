@@ -30,10 +30,21 @@ ephemeral_pub_key_file=$(mktemp)
 EPHEMERAL_RSA_PRIVATE=$(openssl genpkey -algorithm RSA -outform PEM -pkeyopt rsa_keygen_bits:2048)
 echo "$EPHEMERAL_RSA_PRIVATE" | openssl rsa -pubout -outform PEM > $ephemeral_pub_key_file
 
+# Unlock gpg-agent (SOPS can't ask for passphrase in non-interactive mode)
+FINGERPRINT=$(jq -r '.sops.pgp[0].fp' config/secrets.enc.json)
+echo "Unlocking GPG agent with fingerprint $FINGERPRINT"
+echo "Unlock me plz" | gpg --encrypt --recipient "$FINGERPRINT" | gpg --decrypt > /dev/null 2>&1
+export GPG_TTY=$(tty)
+
 # Decrypt SOPS files and re-encrypt with the ephemeral RSA public key
 for file in "${SECRETS_FILES[@]}"; do
   echo "Decrypting $file with SOPS and re-encrypting with RSA..."
-  sops --input-type json --output-type json --decrypt "$file" | openssl pkeyutl -encrypt -pubin -inkey "$ephemeral_pub_key_file" > "$EPHEMERAL_VAULT/$(basename "$file")"
+  decrypted_content=$(sops --input-type json --output-type json --decrypt "$file")
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to decrypt $file with SOPS. Exiting."
+    exit 1
+  fi
+  echo "$decrypted_content" | openssl pkeyutl -encrypt -pubin -inkey "$ephemeral_pub_key_file" > "$EPHEMERAL_VAULT/$(basename "$file")"
 done
 
 # Cleanup temporary public key file
