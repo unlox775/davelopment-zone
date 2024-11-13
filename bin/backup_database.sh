@@ -5,7 +5,7 @@ apk add jq
 apk add postgresql-client
 
 SECRETS_FILE=/tmp/local_ephemeral_vault/secrets.json
-DATA_BACKUP_KEY=$(jq -r '.data_backup_key' "$SECRETS_FILE")
+DATA_BACKUP_KEY=$(jq -r '.data_backup_key' "$SECRETS_FILE" | base64 -d)
 
 # Ensure We have a valid key
 if [ -z "$DATA_BACKUP_KEY" ]; then
@@ -23,15 +23,19 @@ KEY_FILE="$EPHEMERAL_VAULT/data_backup_key"
 # Ensure backup directory exists
 mkdir -p "$BACKUP_DIR"
 
+# clean out any old backups
+rm -f "$BACKUP_DIR"/db_backup_chunk_*
+
 # Dump the Postgres database
-pg_dump -h db -U postgres -d postgres -f "$BACKUP_FILE"
+pg_dump -h db -U postgres -d davelopment_zone -f "$BACKUP_FILE"
 
 # Split the backup file into chunks
 split -b $CHUNK_SIZE "$BACKUP_FILE" "$BACKUP_DIR/db_backup_chunk_"
 
-# Encrypt each chunk using the key
+# Encrypt each chunk using the key (and check for errors on each step)
 for chunk in "$BACKUP_DIR"/db_backup_chunk_*; do
-  openssl enc -aes-256-cbc -salt -in "$chunk" -out "$chunk.enc" -pass file:"$KEY_FILE"
+  echo "Encrypting $chunk ..."
+  echo "$DATA_BACKUP_KEY" | openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 -in "$chunk" -out "$chunk.enc" -pass stdin || exit 1
   rm "$chunk"
 done
 

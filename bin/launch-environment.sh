@@ -30,6 +30,10 @@ ephemeral_pub_key_file=$(mktemp)
 EPHEMERAL_RSA_PRIVATE=$(openssl genpkey -algorithm RSA -outform PEM -pkeyopt rsa_keygen_bits:2048)
 echo "$EPHEMERAL_RSA_PRIVATE" | openssl rsa -pubout -outform PEM > $ephemeral_pub_key_file
 
+echo -n "Encrypting secrets using temp RSA key: "
+echo "$EPHEMERAL_RSA_PRIVATE" | openssl pkey -pubout 2>/dev/null | openssl dgst -sha256 | awk '{print $2}'
+
+
 # Unlock gpg-agent (SOPS can't ask for passphrase in non-interactive mode)
 FINGERPRINT=$(jq -r '.sops.pgp[0].fp' config/secrets.enc.json)
 echo "Unlocking GPG agent with fingerprint $FINGERPRINT"
@@ -40,6 +44,7 @@ export GPG_TTY=$(tty)
 for file in "${SECRETS_FILES[@]}"; do
   echo "Decrypting $file with SOPS and re-encrypting with RSA..."
   decrypted_content=$(sops --input-type json --output-type json --decrypt "$file")
+  echo "length of decrypted content: ${#decrypted_content}"
   if [ $? -ne 0 ]; then
     echo "Error: Failed to decrypt $file with SOPS. Exiting."
     exit 1
@@ -58,9 +63,16 @@ WORKSPACE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Start the chosen environment
 if [ "$MODE" == "docker" ]; then
+  cd .devcontainer
+  echo "Just in case: docker-compose down"
+  docker-compose down
+
   echo "Starting Docker Compose with ephemeral key"
-  cd .devcontainer && EPHEMERAL_VAULT="$EPHEMERAL_VAULT" docker-compose up -d
+  EPHEMERAL_VAULT="$EPHEMERAL_VAULT" docker-compose up -d
 elif [ "$MODE" == "vscode" ]; then
+  echo "Just in case: devcontainer down"
+  devcontainer down # not yet impmlemented, but planned
+
   echo "Starting VS Code dev container with ephemeral key"
   devcontainer up --workspace-folder "$WORKSPACE_PATH/.." --remote-env "EPHEMERAL_VAULT=$EPHEMERAL_VAULT"
 else
