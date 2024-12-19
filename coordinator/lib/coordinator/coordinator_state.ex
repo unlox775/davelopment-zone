@@ -7,6 +7,7 @@ defmodule Coordinator.CoordinatorState do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
+  @impl true
   def init(state) do
     state = Map.merge(state, %{
       nodes: %{}, # node_id => %{info: map(), last_seen: DateTime}
