@@ -16,7 +16,9 @@ defmodule Coordinator.Application do
       # Start a worker by calling: Coordinator.Worker.start_link(arg)
       # {Coordinator.Worker, arg},
       # Start to serve requests, typically the last entry
-      CoordinatorWeb.Endpoint
+      CoordinatorWeb.Endpoint,
+      # Start our CoordinatorState GenServer
+      {Coordinator.CoordinatorState, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
