@@ -7,10 +7,6 @@ COORDINATOR_DIR := coordinator
 ####################################################################################################
 # Work Node
 
-# Prefix commands for work_node
-work_node_%:
-	$(MAKE) -C $(WORK_NODE_DIR) $*
-
 # Start mode 1: standalone Docker Compose
 work_node_start: work_node_clean
 	$(MAKE) -C $(WORK_NODE_DIR) start
