@@ -15,7 +15,7 @@ fi
 MODE=$1
 SECRETS_FILES=("config/secrets.enc.json")  # Extendable to other secret files
 
-# Check, ephemeral vault mist NOT exist
+# Check, ephemeral vault must NOT exist
 if [ -d "$EPHEMERAL_VAULT" ]; then
   echo "Error: Ephemeral vault already exists at $EPHEMERAL_VAULT. Exiting."
   exit 1
@@ -32,7 +32,6 @@ echo "$EPHEMERAL_RSA_PRIVATE" | openssl rsa -pubout -outform PEM > $ephemeral_pu
 
 echo -n "Encrypting secrets using temp RSA key: "
 echo "$EPHEMERAL_RSA_PRIVATE" | openssl pkey -pubout 2>/dev/null | openssl dgst -sha256 | awk '{print $2}'
-
 
 # Unlock gpg-agent (SOPS can't ask for passphrase in non-interactive mode)
 FINGERPRINT=$(jq -r '.sops.pgp[0].fp' config/secrets.enc.json)
@@ -59,14 +58,14 @@ rm -f "$ephemeral_pub_key_file"
 export EPHEMERAL_KEY="$EPHEMERAL_RSA_PRIVATE"
 
 # Define the workspace path, the parent directory of the current script
-WORKSPACE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Start the chosen environment
 if [ "$MODE" == "docker" ]; then
-  cd .devcontainer
+  cd "$WORKSPACE_PATH/../.devcontainer"
   echo "Just in case: docker-compose down"
   docker-compose down
-
+  
   echo "Starting Docker Compose with ephemeral key"
   EPHEMERAL_VAULT="$EPHEMERAL_VAULT" docker-compose up -d
 elif [ "$MODE" == "vscode" ]; then

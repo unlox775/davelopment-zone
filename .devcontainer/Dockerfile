@@ -6,6 +6,7 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repo
     apk update && \
     apk add --no-cache \
     bash \
+    make \
     curl \
     git \
     inotify-tools \

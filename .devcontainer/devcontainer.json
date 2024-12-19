@@ -12,12 +12,10 @@
   ],
   "remoteEnv": {
     "EPHEMERAL_VAULT": "${localEnv:EPHEMERAL_VAULT}",
-    "EPHEMERAL_KEY": "${localEnv:EPHEMERAL_KEY}"
-  },
-  "postCreateCommand": "mix deps.get",
-  "remoteEnv": {
+    "EPHEMERAL_KEY": "${localEnv:EPHEMERAL_KEY}",
     "SECRET_KEY_BASE": "${localEnv:SECRET_KEY_BASE}"
   },
+  "postCreateCommand": "mix deps.get",
   "customizations": {
     "vscode": {
       "settings": {
