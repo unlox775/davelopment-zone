@@ -1,0 +1,5 @@
+# .sops.yaml
+creation_rules:
+  - encrypted_regex: '.'
+    pgp: 1D3FB3251AEEF90841E368D3D5C492AF4EE89913
+    aws_profile: "sops-encryption-profile" # Optional, if using AWS KMS

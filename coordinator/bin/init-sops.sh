@@ -41,7 +41,7 @@ else
     cat <<EOF > .sops.yaml
 creation_rules:
     - encrypted_regex: '^($keys_regex)$'
-        pgp: $NEW_GPG_FINGERPRINT
+      pgp: $NEW_GPG_FINGERPRINT
 EOF
 fi
 
