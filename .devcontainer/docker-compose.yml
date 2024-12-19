@@ -3,10 +3,10 @@ name: davelopment-zone_devcontainer
 services:
   dev:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./work_node
+      dockerfile: ./work_node/Dockerfile
     volumes:
-      - ..:/workspace:cached
+      - ./work_node:/workspace:cached
       # Mount ephemeral vault
       - ${EPHEMERAL_VAULT:-/no_ephemeral_vault}:/ephemeral_vault:ro
     environment:
